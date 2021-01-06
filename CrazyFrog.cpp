@@ -15,8 +15,7 @@ GLdouble aspectRatio = (GLdouble)WIDTH / (GLdouble)HEIGHT;
 GLdouble zNear = 0.1;
 GLdouble zFar = 100;
 
-class Vector
-{
+class Vector{
 public:
 	GLdouble x, y, z;
 	Vector() {}
@@ -46,11 +45,9 @@ Model_3DS model_tree;
 // Textures
 GLTexture tex_ground;
 
-//=======================================================================
+
 // Lighting Configuration Function
-//=======================================================================
-void InitLightSource()
-{
+void InitLightSource(){
 	// Enable Lighting for this OpenGL Program
 	glEnable(GL_LIGHTING);
 
@@ -75,11 +72,9 @@ void InitLightSource()
 	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 }
 
-//=======================================================================
+
 // Material Configuration Function
-//======================================================================
-void InitMaterial()
-{
+void InitMaterial(){
 	// Enable Material Tracking
 	glEnable(GL_COLOR_MATERIAL);
 
@@ -96,11 +91,9 @@ void InitMaterial()
 	glMaterialfv(GL_FRONT, GL_SHININESS, shininess);
 }
 
-//=======================================================================
+
 // OpengGL Configuration Function
-//=======================================================================
-void myInit(void)
-{
+void myInit(void){
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 
 	glMatrixMode(GL_PROJECTION);
@@ -134,11 +127,8 @@ void myInit(void)
 	glEnable(GL_NORMALIZE);
 }
 
-//=======================================================================
-// Render Ground Function
-//=======================================================================
-void RenderGround()
-{
+
+void RenderGround(){
 	glDisable(GL_LIGHTING);	// Disable lighting 
 
 	glColor3f(0.6, 0.6, 0.6);	// Dim the ground texture a bit
@@ -166,14 +156,9 @@ void RenderGround()
 	glColor3f(1, 1, 1);	// Set material back to white instead of grey used for the ground texture.
 }
 
-//=======================================================================
-// Display Function
-//=======================================================================
-void myDisplay(void)
-{
+
+void myDisplay(void){
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-
 
 	GLfloat lightIntensity[] = { 0.7, 0.7, 0.7, 1.0f };
 	GLfloat lightPosition[] = { 0.0f, 100.0f, 0.0f, 0.0f };
@@ -197,7 +182,6 @@ void myDisplay(void)
 	model_house.Draw();
 	glPopMatrix();
 
-
 	//sky box
 	glPushMatrix();
 
@@ -211,21 +195,14 @@ void myDisplay(void)
 	gluSphere(qobj, 100, 100, 100);
 	gluDeleteQuadric(qobj);
 
-
 	glPopMatrix();
-
-
 
 	glutSwapBuffers();
 }
 
-//=======================================================================
-// Keyboard Function
-//=======================================================================
-void myKeyboard(unsigned char button, int x, int y)
-{
-	switch (button)
-	{
+
+void myKeyboard(unsigned char button, int x, int y){
+	switch (button){
 	case 'w':
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		break;
@@ -242,20 +219,15 @@ void myKeyboard(unsigned char button, int x, int y)
 	glutPostRedisplay();
 }
 
-//=======================================================================
-// Motion Function
-//=======================================================================
-void myMotion(int x, int y)
-{
+
+void myMotion(int x, int y){
 	y = HEIGHT - y;
 
-	if (cameraZoom - y > 0)
-	{
+	if (cameraZoom - y > 0){
 		Eye.x += -0.1;
 		Eye.z += -0.1;
 	}
-	else
-	{
+	else{
 		Eye.x += 0.1;
 		Eye.z += 0.1;
 	}
@@ -272,24 +244,16 @@ void myMotion(int x, int y)
 	glutPostRedisplay();	//Re-draw scene 
 }
 
-//=======================================================================
-// Mouse Function
-//=======================================================================
-void myMouse(int button, int state, int x, int y)
-{
-	y = HEIGHT - y;
 
-	if (state == GLUT_DOWN)
-	{
+void myMouse(int button, int state, int x, int y){
+	y = HEIGHT - y;
+	if (state == GLUT_DOWN){
 		cameraZoom = y;
 	}
 }
 
-//=======================================================================
-// Reshape Function
-//=======================================================================
-void myReshape(int w, int h)
-{
+
+void myReshape(int w, int h){
 	if (h == 0) {
 		h = 1;
 	}
@@ -311,11 +275,8 @@ void myReshape(int w, int h)
 	gluLookAt(Eye.x, Eye.y, Eye.z, At.x, At.y, At.z, Up.x, Up.y, Up.z);
 }
 
-//=======================================================================
-// Assets Loading Function
-//=======================================================================
-void LoadAssets()
-{
+
+void LoadAssets(){
 	// Loading Model files
 	model_house.Load("Models/house/house.3DS");
 	model_tree.Load("Models/tree/Tree1.3ds");
@@ -325,41 +286,25 @@ void LoadAssets()
 	loadBMP(&tex, "Textures/blu-sky-3.bmp", true);
 }
 
-//=======================================================================
-// Main Function
-//=======================================================================
-void main(int argc, char** argv)
-{
+
+void main(int argc, char** argv){
 	glutInit(&argc, argv);
-
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-
 	glutInitWindowSize(WIDTH, HEIGHT);
-
 	glutInitWindowPosition(100, 150);
-
 	glutCreateWindow(title);
-
 	glutDisplayFunc(myDisplay);
-
 	glutKeyboardFunc(myKeyboard);
-
 	glutMotionFunc(myMotion);
-
 	glutMouseFunc(myMouse);
-
 	glutReshapeFunc(myReshape);
-
 	myInit();
-
 	LoadAssets();
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
 	glEnable(GL_NORMALIZE);
 	glEnable(GL_COLOR_MATERIAL);
-
 	glShadeModel(GL_SMOOTH);
-
 	glutMainLoop();
 }
