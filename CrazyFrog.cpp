@@ -181,6 +181,7 @@ void myDisplay(void)
 	glLightfv(GL_LIGHT0, GL_AMBIENT, lightIntensity);
 
 	// Draw Ground
+	glRotatef(45.f, 0, 1, 0);
 	RenderGround();
 
 	// Draw Tree Model
