@@ -7,7 +7,7 @@ int WIDTH = 1280;
 int HEIGHT = 720;
 
 GLuint tex;
-char title[] = "Crazy Frog Ali";
+char title[] = "Crazy Frog";
 
 // 3D Projection Options
 GLdouble fovy = 45.0;
