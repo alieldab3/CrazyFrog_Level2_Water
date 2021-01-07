@@ -17,6 +17,10 @@ GLdouble zFar = 100;
 GLdouble xStand = 17.5;
 boolean Right = false;
 
+GLdouble xFrog = 0;
+GLdouble yFrog = 0;
+GLdouble zFrog = 20;
+
 class Vector {
 public:
 	GLdouble x, y, z;
@@ -207,6 +211,47 @@ void StandAnim() {
 
 	glutPostRedisplay();
 }
+void FrogAnimFront() {
+	if (zFrog >= -17.5) {
+		zFrog -= 0.2;
+	//	yFrog += 0.2;
+	}
+	
+
+	glutPostRedisplay();
+}
+void FrogAnimBack() {
+	if (zFrog <= 17.5) {
+		zFrog += 0.2;
+	}
+	glutPostRedisplay();
+}
+void FrogAnimRight() {
+	if (xFrog <= 17.5) {
+		xFrog += 0.2;
+	}
+
+	glutPostRedisplay();
+}
+void FrogAnimLeft() {
+	if (xFrog >= -17.5) {
+		xFrog -= 0.2;
+	}
+
+	glutPostRedisplay();
+}
+void FrogAnimUp() {
+		yFrog += 0.2;
+
+	glutPostRedisplay();
+}
+void FrogAnimDown() {
+    	yFrog -= 0.2;
+	
+
+	glutPostRedisplay();
+}
+
 void myDisplay(void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -313,7 +358,7 @@ void myDisplay(void) {
 
 	// Draw Frog Model
 	glPushMatrix();
-	glTranslatef(0, 0, 20);
+	glTranslatef(xFrog,yFrog, zFrog);
 	glScalef(30, 30, 30);
 	glRotatef(180.f, 0, 1, 0);
 	model_Frog.Draw();
@@ -341,7 +386,7 @@ void myDisplay(void) {
 
 void myKeyboard(unsigned char button, int x, int y) {
 	switch (button) {
-	case 'w':
+	case 'p':
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		break;
 
@@ -351,6 +396,19 @@ void myKeyboard(unsigned char button, int x, int y) {
 	case 27:
 		exit(0);
 		break;
+	case 'w':
+		glutIdleFunc(FrogAnimFront);
+		break;
+	case 's':
+		glutIdleFunc(FrogAnimBack);
+		break;
+	case 'd':
+		glutIdleFunc(FrogAnimRight);
+		break;
+	case 'a':
+		glutIdleFunc(FrogAnimLeft);
+		break;
+
 	default:
 		break;
 	}
