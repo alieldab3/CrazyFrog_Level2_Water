@@ -14,8 +14,10 @@ GLdouble fovy = 45.0;
 GLdouble aspectRatio = (GLdouble)WIDTH / (GLdouble)HEIGHT;
 GLdouble zNear = 0.1;
 GLdouble zFar = 100;
+GLdouble xStand = 17.5;
+boolean Right = false;
 
-class Vector{
+class Vector {
 public:
 	GLdouble x, y, z;
 	Vector() {}
@@ -32,7 +34,7 @@ public:
 	}
 };
 
-Vector Eye(20, 5, 20);
+Vector Eye(0, 8, 35);
 Vector At(0, 0, 0);
 Vector Up(0, 1, 0);
 
@@ -41,13 +43,17 @@ int cameraZoom = 0;
 // Model Variables
 Model_3DS model_house;
 Model_3DS model_tree;
+Model_3DS model_Frog;
+Model_3DS model_Stand;
+Model_3DS model_Fence;
 
 // Textures
-GLTexture tex_ground;
+GLTexture tex_Lake;
+GLTexture tex_Ground;
 
 
 // Lighting Configuration Function
-void InitLightSource(){
+void InitLightSource() {
 	// Enable Lighting for this OpenGL Program
 	glEnable(GL_LIGHTING);
 
@@ -74,7 +80,7 @@ void InitLightSource(){
 
 
 // Material Configuration Function
-void InitMaterial(){
+void InitMaterial() {
 	// Enable Material Tracking
 	glEnable(GL_COLOR_MATERIAL);
 
@@ -93,7 +99,7 @@ void InitMaterial(){
 
 
 // OpengGL Configuration Function
-void myInit(void){
+void myInit(void) {
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 
 	glMatrixMode(GL_PROJECTION);
@@ -128,14 +134,41 @@ void myInit(void){
 }
 
 
-void RenderGround(){
+void RenderLake() {
 	glDisable(GL_LIGHTING);	// Disable lighting 
 
 	glColor3f(0.6, 0.6, 0.6);	// Dim the ground texture a bit
 
 	glEnable(GL_TEXTURE_2D);	// Enable 2D texturing
 
-	glBindTexture(GL_TEXTURE_2D, tex_ground.texture[0]);	// Bind the ground texture
+	glBindTexture(GL_TEXTURE_2D, tex_Lake.texture[0]);	// Bind the ground texture
+
+	glPushMatrix();
+	glBegin(GL_QUADS);
+	glNormal3f(0, 1, 0);	// Set quad normal direction.
+	glTexCoord2f(0, 0);		// Set tex coordinates ( Using (0,0) -> (5,5) with texture wrapping set to GL_REPEAT to simulate the ground repeated grass texture).
+	glVertex3f(-20, 0, -20);
+	glTexCoord2f(5, 0);
+	glVertex3f(20, 0, -20);
+	glTexCoord2f(5, 5);
+	glVertex3f(20, 0, 20);
+	glTexCoord2f(0, 5);
+	glVertex3f(-20, 0, 20);
+	glEnd();
+	glPopMatrix();
+
+	glEnable(GL_LIGHTING);	// Enable lighting again for other entites coming throung the pipeline.
+
+	glColor3f(1, 1, 1);	// Set material back to white instead of grey used for the ground texture.
+}
+void RenderGround() {
+	glDisable(GL_LIGHTING);	// Disable lighting 
+
+	glColor3f(0.6, 0.6, 0.6);	// Dim the ground texture a bit
+
+	glEnable(GL_TEXTURE_2D);	// Enable 2D texturing
+
+	glBindTexture(GL_TEXTURE_2D, tex_Ground.texture[0]);	// Bind the ground texture
 
 	glPushMatrix();
 	glBegin(GL_QUADS);
@@ -156,8 +189,25 @@ void RenderGround(){
 	glColor3f(1, 1, 1);	// Set material back to white instead of grey used for the ground texture.
 }
 
+void StandAnim() {
+	if (xStand <= 17.5 && Right == false) {
+		xStand += 0.02;
+	}
+	else {
+		Right = true;
+	}
 
-void myDisplay(void){
+	if (xStand >= -17.5 && Right == true) {
+		xStand -= 0.02;
+
+	}
+	else {
+		Right = false;
+	}
+
+	glutPostRedisplay();
+}
+void myDisplay(void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	GLfloat lightIntensity[] = { 0.7, 0.7, 0.7, 1.0f };
@@ -165,26 +215,114 @@ void myDisplay(void){
 	glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
 	glLightfv(GL_LIGHT0, GL_AMBIENT, lightIntensity);
 
-	// Draw Ground
-	glRotatef(45.f, 0, 1, 0);
-	RenderGround();
+	// Draw Lake
+	RenderLake();
 
-	// Draw Tree Model
+	// Draw Start Ground
 	glPushMatrix();
-	glTranslatef(10, 0, 0);
+	glTranslatef(0, 0.1, -20);
+	glScalef(1, 0.7, 0.3);
+	RenderGround();
+	glPopMatrix();
+
+	// Draw End Ground
+	glPushMatrix();
+	glTranslatef(0, 0.1, 20);
+	glScalef(1, 0.7, 0.3);
+	RenderGround();
+	glPopMatrix();
+
+
+
+	// Draw Tree 1 Model
+	glPushMatrix();
+	glTranslatef(10, 0, -20);
+	glScalef(0.7, 0.7, 0.7);
+	model_tree.Draw();
+	glPopMatrix();
+
+	// Draw Tree 2 Model
+	glPushMatrix();
+	glTranslatef(-10, 0, -20);
 	glScalef(0.7, 0.7, 0.7);
 	model_tree.Draw();
 	glPopMatrix();
 
 	// Draw house Model
 	glPushMatrix();
+	glTranslatef(0, 0, -20);
 	glRotatef(90.f, 1, 0, 0);
 	model_house.Draw();
 	glPopMatrix();
 
+	// Draw Left Fence Model
+	glPushMatrix();
+	glTranslatef(-20, 0, 0);
+	glRotatef(90.f, 0, 1, 0);
+	glScalef(0.2, 0.04, 0.05);
+	model_Fence.Draw();
+	glPopMatrix();
+
+	// Draw Right Fence Model
+	glPushMatrix();
+	glTranslatef(20, 0, 0);
+	glRotatef(90.f, 0, 1, 0);
+	glScalef(0.2, 0.04, 0.05);
+	model_Fence.Draw();
+	glPopMatrix();
+
+	// Draw Front Fence Model
+	glPushMatrix();
+	glTranslatef(0, 0, -23);
+	glScalef(0.18, 0.04, 0.05);
+	model_Fence.Draw();
+	glPopMatrix();
+
+	// Draw Stand 1 Model
+	glPushMatrix();
+	glTranslatef(xStand, 0, -10);
+	glScalef(0.05, 0.05, 0.05);
+	glutIdleFunc(StandAnim);
+	model_Stand.Draw();
+	glPopMatrix();
+
+	// Draw Stand 2 Model
+	glPushMatrix();
+	glTranslatef(-xStand, 0, -4);
+	glScalef(0.05, 0.05, 0.05);
+	glutIdleFunc(StandAnim);
+	model_Stand.Draw();
+	glPopMatrix();
+
+	// Draw Stand 3 Model
+	glPushMatrix();
+	glTranslatef(xStand, 0, 2);
+	glScalef(0.05, 0.05, 0.05);
+	glutIdleFunc(StandAnim);
+	model_Stand.Draw();
+	glPopMatrix();
+
+	// Draw Stand 4 Model
+	glPushMatrix();
+	glTranslatef(-xStand, 0, 8);
+	glScalef(0.05, 0.05, 0.05);
+	glutIdleFunc(StandAnim);
+	model_Stand.Draw();
+	glPopMatrix();
+
+
+	// Draw Frog Model
+	glPushMatrix();
+	glTranslatef(0, 0, 20);
+	glScalef(30, 30, 30);
+	glRotatef(180.f, 0, 1, 0);
+	model_Frog.Draw();
+	glPopMatrix();
+
+
 	//sky box
 	glPushMatrix();
-
+	glRotatef(-45.f, 0, 1, 0);
 	GLUquadricObj* qobj;
 	qobj = gluNewQuadric();
 	glTranslated(50, 0, 0);
@@ -201,11 +339,12 @@ void myDisplay(void){
 }
 
 
-void myKeyboard(unsigned char button, int x, int y){
-	switch (button){
+void myKeyboard(unsigned char button, int x, int y) {
+	switch (button) {
 	case 'w':
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		break;
+
 	case 'r':
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		break;
@@ -220,14 +359,14 @@ void myKeyboard(unsigned char button, int x, int y){
 }
 
 
-void myMotion(int x, int y){
+void myMotion(int x, int y) {
 	y = HEIGHT - y;
 
-	if (cameraZoom - y > 0){
+	if (cameraZoom - y > 0) {
 		Eye.x += -0.1;
 		Eye.z += -0.1;
 	}
-	else{
+	else {
 		Eye.x += 0.1;
 		Eye.z += 0.1;
 	}
@@ -245,15 +384,15 @@ void myMotion(int x, int y){
 }
 
 
-void myMouse(int button, int state, int x, int y){
+void myMouse(int button, int state, int x, int y) {
 	y = HEIGHT - y;
-	if (state == GLUT_DOWN){
+	if (state == GLUT_DOWN) {
 		cameraZoom = y;
 	}
 }
 
 
-void myReshape(int w, int h){
+void myReshape(int w, int h) {
 	if (h == 0) {
 		h = 1;
 	}
@@ -276,18 +415,22 @@ void myReshape(int w, int h){
 }
 
 
-void LoadAssets(){
+void LoadAssets() {
 	// Loading Model files
 	model_house.Load("Models/house/house.3DS");
 	model_tree.Load("Models/tree/Tree1.3ds");
+	model_Frog.Load("Models/Frog/3ds/Frog.3ds");
+	model_Stand.Load("Models/Stand/stand.3DS");
+	model_Fence.Load("Models/Fence/Fence with window N280817.3DS");
 
 	// Loading texture files
-	tex_ground.Load("Textures/ground.bmp");
+	tex_Ground.Load("Textures/Ground.bmp");
+	tex_Lake.Load("Textures/Lake.bmp");
 	loadBMP(&tex, "Textures/blu-sky-3.bmp", true);
 }
 
 
-void main(int argc, char** argv){
+void main(int argc, char** argv) {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 	glutInitWindowSize(WIDTH, HEIGHT);
