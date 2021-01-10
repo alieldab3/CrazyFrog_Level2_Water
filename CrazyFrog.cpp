@@ -19,8 +19,10 @@ boolean Right = false;
 
 GLdouble xFrog = 0;
 GLdouble yFrog = 0;
-GLdouble zFrog = 20;
-
+GLdouble zFrog = 14;
+GLdouble Win = 0;
+int time1 = 20;
+int zEye = 35;
 class Vector {
 public:
 	GLdouble x, y, z;
@@ -38,7 +40,7 @@ public:
 	}
 };
 
-Vector Eye(0, 8, 35);
+Vector Eye(0, 10, zEye);
 Vector At(0, 0, 0);
 Vector Up(0, 1, 0);
 
@@ -192,6 +194,35 @@ void RenderGround() {
 
 	glColor3f(1, 1, 1);	// Set material back to white instead of grey used for the ground texture.
 }
+void Logic() {
+	if ((xFrog <= (xStand + 3) && xFrog >= (xStand - 3)) && ((zFrog <= -8 && zFrog >= -12) || (zFrog <= 4 && zFrog >= 0))) {
+		xFrog = xStand;
+	}
+	else {
+		if ((xFrog <= (-xStand + 3) && xFrog >= (-xStand -3)) && ((zFrog <= -2 && zFrog >= -6) || (zFrog <= 10 && zFrog >= 6)) ) {
+			xFrog = (-xStand);
+		}
+		else {
+			if ((zFrog <= 10 && zFrog >= -12 && yFrog >= -1)) {
+				yFrog -= 0.01;
+				Win = -2;
+			}
+			else {
+				if(zFrog <= -14 && zFrog >= -20) {
+					yFrog = 0;
+					Win = 1;
+				}
+				else {
+					if ((zFrog <= 20 && zFrog >= 14)) {
+						yFrog = 0;
+					}
+				}
+			}
+		}
+
+	}
+	glutPostRedisplay();
+}
 
 void StandAnim() {
 	if (xStand <= 17.5 && Right == false) {
@@ -208,16 +239,15 @@ void StandAnim() {
 	else {
 		Right = false;
 	}
-
+	
+	
 	glutPostRedisplay();
 }
 void FrogAnimFront() {
 	if (zFrog >= -17.5) {
-		zFrog -= 0.2;
-	//	yFrog += 0.2;
+		zFrog -= 6;
+		
 	}
-	
-
 	glutPostRedisplay();
 }
 void FrogAnimBack() {
@@ -251,7 +281,27 @@ void FrogAnimDown() {
 
 	glutPostRedisplay();
 }
+void print(float x, float y, char* string)
+{
+	int len, i;
+	len = 20;
+	glRasterPos2f(x, y);
+	for (i = 0; i < len; i++)
+	{
+		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, string[i]);
+	}
+}
+void Timer1(int value) {
+	if (time1 > 0 && Win == 0) {
+		time1 -= 1;
+		glutTimerFunc(1 * 1000, Timer1, 0);
+	}
+	else {
+		Win = -1;
+	}
 
+	glutPostRedisplay();
+}
 void myDisplay(void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -259,6 +309,39 @@ void myDisplay(void) {
 	GLfloat lightPosition[] = { 0.0f, 100.0f, 0.0f, 0.0f };
 	glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
 	glLightfv(GL_LIGHT0, GL_AMBIENT, lightIntensity);
+	
+	if (Win == 0) {
+		glClear(GL_COLOR_BUFFER_BIT);
+		glColor3f(0, 0, 0);
+		char* sc[30];
+		sprintf((char*)sc, "Time Left : %d", time1);
+		print(-3, 12, (char*)sc);
+	}
+	if (Win == -1) {
+		glClear(GL_COLOR_BUFFER_BIT);
+		glColor3f(1, 0, 0);
+		char* sc[20];
+		sprintf((char*)sc, "Timeout!");
+		print(-3, 12, (char*)sc);
+	}
+	if (Win == -2) {
+		glClear(GL_COLOR_BUFFER_BIT);
+		glColor3f(1, 0, 0);
+		char* sc[20];
+		sprintf((char*)sc, "Frog Sank!");
+		print(-3, 12, (char*)sc);
+	}
+	if (Win == 1) {
+		glColor3d(0, 1, 0);
+		char* sc[20];
+		sprintf((char*)sc, "You Won !");
+		print(-3, 12, (char*)sc);
+
+		glColor3d(0, 1, 0);
+		char* sc1[20];
+		sprintf((char*)sc1, "Score : %d", time1*5);
+		print(-3, 10, (char*)sc1);
+	}
 
 	// Draw Lake
 	RenderLake();
@@ -379,6 +462,7 @@ void myDisplay(void) {
 	gluDeleteQuadric(qobj);
 
 	glPopMatrix();
+	Logic();
 
 	glutSwapBuffers();
 }
@@ -407,6 +491,14 @@ void myKeyboard(unsigned char button, int x, int y) {
 		break;
 	case 'a':
 		glutIdleFunc(FrogAnimLeft);
+		break;
+
+	case 'z':
+		zEye = 35;
+		break;
+
+	case 'x':
+		zEye = zFrog;
 		break;
 
 	default:
@@ -507,5 +599,6 @@ void main(int argc, char** argv) {
 	glEnable(GL_NORMALIZE);
 	glEnable(GL_COLOR_MATERIAL);
 	glShadeModel(GL_SMOOTH);
+	Timer1(1);
 	glutMainLoop();
 }
